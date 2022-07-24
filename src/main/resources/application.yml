@@ -1,0 +1,46 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 472000784111-teianu4jquqqoeh92bal21jjd9v794ms.apps.googleusercontent.com
+            client-secret: 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
+            scope: 
+            - openid
+            - profile
+            - email
+            redirect_uri: "http://localhost:8080/login/oauth2/code/{registrationId}"
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
+          
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+      
+resilience4j:
+  circuitbreaker:
+    instances:
+      uploadMultimedia:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 10
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitingDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 8
+        slidingWindowType: COUNT_BASED
+app:
+  auth:
+  cors:
+    allowedOrigins: http://localhost:3000, http://localhost:8080

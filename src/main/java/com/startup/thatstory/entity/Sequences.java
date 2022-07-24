@@ -2,6 +2,9 @@ package com.startup.thatstory.entity;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.annotation.Id;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,10 +18,12 @@ import lombok.NoArgsConstructor;
 
 public class Sequences {
 
-	private Integer sequencenum; 
+	@Id
+//	@GeneratedValue 
+	private UUID sequenceid; 
 	private String shortdescription; 
 	private String multimediaurl; 
-	private Integer sequenceno; 
+	private Integer sequencenum; 
 	private String changeby;
 	private Date changedate;
 	private String createdby;

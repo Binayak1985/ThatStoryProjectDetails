@@ -18,5 +18,11 @@ public class ThatStoryProjectDetailConfiguration {
 	{
 		return new ProjectResponseDTO();
 	}
-	
+
+//	
+//	@Bean
+//	public OAuth2AuthenticationSuccessHandler getOAuth2AuthenticationSuccessHandler()
+//	{
+//		return new OAuth2AuthenticationSuccessHandler();
+//	}
 }
