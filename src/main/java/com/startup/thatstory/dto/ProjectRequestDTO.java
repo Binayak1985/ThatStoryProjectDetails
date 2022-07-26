@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.startup.thatstory.entity.Sequences;
+import com.startup.thatstory.entity.Sequence;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +31,7 @@ public class ProjectRequestDTO {
 	private String changedate;
 	private String createdby;
 	private Date createddate;
-	private List<Sequences> sequences;
+	private List<Sequence> sequences;
 
 	
 }

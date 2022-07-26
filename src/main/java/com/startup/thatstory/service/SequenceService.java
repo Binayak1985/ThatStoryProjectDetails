@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.startup.thatstory.dto.SequenceResponseDTO;
-import com.startup.thatstory.entity.Sequences;
+import com.startup.thatstory.dto.sequence.SequenceResponseDTO;
+import com.startup.thatstory.entity.Sequence;
 import com.startup.thatstory.repository.SequenceRepository;
 
 import lombok.AllArgsConstructor;

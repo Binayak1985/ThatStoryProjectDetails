@@ -1,7 +1,9 @@
-package com.startup.thatstory.dto;
+package com.startup.thatstory.dto.sequence;
 
 import java.util.Date;
-import com.startup.thatstory.entity.Sequences;
+
+import com.startup.thatstory.entity.Sequence;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +25,7 @@ public class SequenceResponseDTO {
     String createdby;
     Date createddate;
 
-    public SequenceResponseDTO(Sequences sequence)
+    public SequenceResponseDTO(Sequence sequence)
     {
     	
     	this.sequencenum = sequence.getSequencenum();

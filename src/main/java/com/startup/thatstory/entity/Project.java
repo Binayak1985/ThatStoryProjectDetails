@@ -2,8 +2,11 @@ package com.startup.thatstory.entity;
 
 import java.util.Date;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +32,8 @@ public class Project {
 	private String changedate;
 	private String createdby;
 	private Date createddate;
-	private List<Sequences> sequences;
+	@Value("DRAFT")
+	private String status;
+	private List<Sequence> sequences;
 
 }

@@ -10,7 +10,7 @@ spring:
             - openid
             - profile
             - email
-            redirect_uri: "http://localhost:8080/login/oauth2/code/{registrationId}"
+            redirect_uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           google:
             issuer-uri: https://accounts.google.com
@@ -41,6 +41,5 @@ resilience4j:
         slidingWindowSize: 8
         slidingWindowType: COUNT_BASED
 app:
-  auth:
   cors:
-    allowedOrigins: http://localhost:3000, http://localhost:8080
+    allowedOrigins: http://localhost:3000

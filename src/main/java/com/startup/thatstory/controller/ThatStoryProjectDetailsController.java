@@ -1,5 +1,6 @@
 package com.startup.thatstory.controller;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,7 +33,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.startup.thatstory.dto.MultimediaResponseDTO;
 import com.startup.thatstory.dto.ProjectRequestDTO;
 import com.startup.thatstory.dto.ProjectResponseDTO;
+import com.startup.thatstory.dto.sequence.SequenceRequestDTO;
+import com.startup.thatstory.dto.sequence.SequenceResponseDTO;
 import com.startup.thatstory.entity.Project;
+import com.startup.thatstory.entity.Sequence;
 import com.startup.thatstory.repository.ProjectRepository;
 import com.startup.thatstory.service.MultimediaService;
 import com.startup.thatstory.service.ProjectService;
@@ -67,39 +72,50 @@ public class ThatStoryProjectDetailsController {
 
 	@GetMapping("/project")
 	@ResponseBody
-	public ResponseEntity<ProjectResponseDTO> getProjectDetails(ProjectRequestDTO projectrequestdto) throws Exception {
+//	public ResponseEntity<ProjectResponseDTO> getProjectDetails(ProjectRequestDTO projectrequestdto) throws Exception {
+	public ResponseEntity<ProjectResponseDTO> getProjectDetails(@RequestParam (required=false) String _id) throws Exception {
 		// ProjectResponseDTO projectresponsedto = new ProjectResponseDTO();
 		// projectresponsedto.setProjectrequestdto(projectrequestdto);
 
-		log.debug("_id is :: " + projectrequestdto.getId());
-		ProjectService projsvc = new ProjectService(projectrequestdto, projectrepo);
-		Optional<ProjectResponseDTO> projectresponsedtotemp = Optional
-				.of(new ProjectResponseDTO(projsvc.getProjectDetails()));
+		log.debug("_id is :: " + _id);
+		ProjectService projsvc = new ProjectService(projectrepo);
+		
+		if(_id ==null)
+		{
+		
+			return ResponseEntity.ok(new ProjectResponseDTO(projsvc.getProjectDetails()));
+		}
+		else
+		{
+		Optional<ProjectResponseDTO> projectresponsedtotemp = Optional.of(new ProjectResponseDTO(projsvc.getProjectDetails(_id)));
 		if (projectresponsedtotemp.isPresent()) {
 			return ResponseEntity.ok(projectresponsedtotemp.get());
 		} else {
 			return ResponseEntity.notFound().build();
 		}
-
+		}
 	}
 
 	@PostMapping(value = "/project", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE,
 			MediaType.MULTIPART_FORM_DATA_VALUE })
 	@ResponseBody
-	public ResponseEntity<ProjectResponseDTO> postProjectDetails(@RequestPart("bucketname") String bucketname,
-			@RequestPart("filename") String filename,
-			@RequestPart("projectrequestdto") ProjectRequestDTO projectrequestdto,
-			@RequestPart("file") MultipartFile file) throws Exception {
+	public ResponseEntity<ProjectResponseDTO> postProjectDetails(
+			//@RequestPart(name="bucketname", required=false) String bucketname,
+			//@RequestPart("filename") String filename,
+			//@RequestPart("projectrequestdto") ProjectRequestDTO projectrequestdto,
+			//@RequestPart("file") MultipartFile file	
+			@RequestBody ProjectRequestDTO projectrequestdto
+			) throws Exception {
 
-		log.debug("projectid is :: " + projectrequestdto.getId());
+		//log.debug("projectid is :: " + projectrequestdto.getId());
 
 		ProjectService projsvc = new ProjectService(projectrequestdto, projectrepo);
-		Project project = projsvc.addProjectDetails();
+		List project = projsvc.addProjectDetails();
 
-		MultimediaResponseDTO multimediaresponse = multimediasvc.uploadMultimedia(bucketname, filename, file);
+		//MultimediaResponseDTO multimediaresponse = multimediasvc.uploadMultimedia(bucketname, filename, file);
 		// logger.debug("filename is :: "+file.getOriginalFilename());
 
-		log.debug(multimediaresponse.toString());
+		//log.debug(multimediaresponse.toString());
 		if (project == null) {
 			return ResponseEntity.ok().body(new ProjectResponseDTO(project));
 		} else {
@@ -113,10 +129,10 @@ public class ThatStoryProjectDetailsController {
 	public ResponseEntity<ProjectResponseDTO> putProjectDetails(@RequestBody ProjectRequestDTO projectrequestdto)
 			throws Exception {
 
-		log.debug("projectid is :: " + projectrequestdto.getId());
+//		log.debug("projectid is :: " + projectrequestdto.getId());
 
 		ProjectService projsvc = new ProjectService(projectrequestdto, projectrepo);
-		Project project = projsvc.updateAndSaveProjectDetails();
+		List project = projsvc.updateAndSaveProjectDetails();
 
 		if (project == null) {
 			return ResponseEntity.ok().body(new ProjectResponseDTO(project));
@@ -134,7 +150,7 @@ public class ThatStoryProjectDetailsController {
 		log.debug("projectid is :: " + projectrequestdto.getId());
 
 		ProjectService projsvc = new ProjectService(projectrequestdto, projectrepo);
-		Project project = projsvc.deleteAndSaveProject();
+		List project = projsvc.deleteAndSaveProject();
 
 		if (project == null) {
 			return ResponseEntity.ok().body(new ProjectResponseDTO(project));
@@ -150,6 +166,40 @@ public class ThatStoryProjectDetailsController {
 		multimediasvc.uploadMultimedia(bucketname, filename, file);
 		// logger.debug("filename is "+file.getOriginalFilename());
 		return MultimediaResponseDTO.builder().bucketname("test").filename(file.getOriginalFilename()).build();
+	}
+	
+	
+	
+	@GetMapping("/sequence")
+	public ResponseEntity<SequenceResponseDTO> addSequence(@RequestParam(required=true) String _id, @RequestParam(required=true) Integer sequencenum) throws Exception
+	{
+		ProjectService projectsvc = new ProjectService(projectrepo);
+		Sequence newseq = projectsvc.getSequenceDetails(_id,sequencenum);
+		return ResponseEntity.ok(new SequenceResponseDTO(newseq));
+	}
+	
+	@PostMapping("/sequence")
+	public ResponseEntity<SequenceResponseDTO> addSequence(@RequestBody SequenceRequestDTO seqrequestdto) throws Exception
+	{
+		ProjectService projectsvc = new ProjectService(projectrepo);
+		Sequence newseq = projectsvc.addSequenceDetails(seqrequestdto);
+		return ResponseEntity.ok(new SequenceResponseDTO(newseq));
+	}
+	
+	@PutMapping("/sequence")
+	public ResponseEntity<SequenceResponseDTO> updateSequence(@RequestBody SequenceRequestDTO seqrequestdto) throws Exception
+	{
+		ProjectService projectsvc = new ProjectService(projectrepo);
+		Sequence newseq = projectsvc.updateSequenceDetails(seqrequestdto);
+		return ResponseEntity.ok(new SequenceResponseDTO(newseq));
+	}
+	
+	@DeleteMapping("/sequence")
+	public ResponseEntity<ProjectResponseDTO> deleteSequence(@RequestBody SequenceRequestDTO seqrequestdto) throws Exception
+	{
+		ProjectService projectsvc = new ProjectService(projectrepo);
+		List<Project> project = projectsvc.deleteSequenceDetails(seqrequestdto);
+		return ResponseEntity.ok(new ProjectResponseDTO(project));
 	}
 
 	@SneakyThrows
