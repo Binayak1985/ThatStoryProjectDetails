@@ -186,18 +186,18 @@ public class ProjectService {
 		throw new CustomObjectNotFoundException("Sequence Not found");
 	}
 	
-	public List<Project> deleteSequenceDetails(SequenceRequestDTO sequencereqdto) throws Exception {
+	public List<Project> deleteSequenceDetails(String _id , Integer sequencenum) throws Exception {
 
-		logger.debug("projectid deleteing:: "+sequencereqdto.get_id());
-		Optional<Project> projecttemp = projectrepo.findById(sequencereqdto.get_id());
+		logger.debug("projectid deleteing:: "+_id);
+		Optional<Project> projecttemp = projectrepo.findById(_id);
 //		final Sequence newseq;
 		if (projecttemp.isPresent()) {
 			Project project = projecttemp.get();
 			List<Sequence> sequencelist = project.getSequences();
-			List<Sequence> newsequencelist= sequencelist.stream().filter(seq -> seq.getSequencenum()!=sequencereqdto.getSequencenum()).collect(Collectors.toList());
+			List<Sequence> newsequencelist= sequencelist.stream().filter(seq -> seq.getSequencenum()!=sequencenum).collect(Collectors.toList());
 			project.setSequences(newsequencelist);
 			projectrepo.save(project);
-			return getProjectDetails(sequencereqdto.get_id());
+			return getProjectDetails(_id);
 		}
 
 		throw new CustomObjectNotFoundException("Project Not found");

@@ -195,10 +195,10 @@ public class ThatStoryProjectDetailsController {
 	}
 	
 	@DeleteMapping("/sequence")
-	public ResponseEntity<ProjectResponseDTO> deleteSequence(@RequestBody SequenceRequestDTO seqrequestdto) throws Exception
+	public ResponseEntity<ProjectResponseDTO> deleteSequence(@RequestParam String _id, @RequestParam Integer sequencenum) throws Exception
 	{
 		ProjectService projectsvc = new ProjectService(projectrepo);
-		List<Project> project = projectsvc.deleteSequenceDetails(seqrequestdto);
+		List<Project> project = projectsvc.deleteSequenceDetails(_id, sequencenum);
 		return ResponseEntity.ok(new ProjectResponseDTO(project));
 	}
 
