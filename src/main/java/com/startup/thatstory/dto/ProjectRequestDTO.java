@@ -31,7 +31,7 @@ public class ProjectRequestDTO {
 	private String changedate;
 	private String createdby;
 	private Date createddate;
-	private List<Sequence> sequences;
+	//private List<Sequence> sequences;
 
 	
 }

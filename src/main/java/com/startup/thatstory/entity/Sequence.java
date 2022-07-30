@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.annotation.Id;
@@ -20,12 +21,10 @@ import lombok.NoArgsConstructor;
 @Builder
 
 public class Sequence {
-
-	@Id
-	private UUID sequenceid; 
-	@NotBlank(message="sequence description is required")
+ 
+	@NotEmpty(message="sequence description is required")
 	private String shortdescription; 
-	@NotBlank(message="multimedia file isnt specified")
+	@NotEmpty(message="multimedia file isn't specified")
 	private String multimediaurl; 
 	@NotBlank(message="sequencenum is required")
 	@UniqueElements(message="sequencenum should be unique in a project")

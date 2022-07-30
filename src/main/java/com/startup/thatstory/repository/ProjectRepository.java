@@ -14,4 +14,6 @@ public interface ProjectRepository extends MongoRepository<Project, String>{
 
 	Project findByTitle(String title); 
 	
+	@Query("{'createdby':?0}")
+	List<Project> findProjectsByCreatedby(String createdby);
 }

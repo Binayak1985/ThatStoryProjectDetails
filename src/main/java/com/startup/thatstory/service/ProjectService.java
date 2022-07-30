@@ -2,12 +2,14 @@ package com.startup.thatstory.service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+//import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 import com.startup.thatstory.customexception.CustomObjectNotFoundException;
 import com.startup.thatstory.dto.ProjectRequestDTO;
@@ -21,28 +23,29 @@ import lombok.Data;
 @Data
 // @Service
 public class ProjectService {
-
+	
 	ProjectRepository projectrepo;
 	ProjectRequestDTO projectrequestdto;
+	OAuth2AuthenticationToken authenticationToken;
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public ProjectService(ProjectRequestDTO projectrequestdto, ProjectRepository projectrepo) {
+	public ProjectService(ProjectRequestDTO projectrequestdto, ProjectRepository projectrepo, OAuth2AuthenticationToken authenticationToken) {
 		this.projectrepo = projectrepo;
 		this.projectrequestdto = projectrequestdto;
+		this.authenticationToken = authenticationToken;
 	}
 
-	public ProjectService(ProjectRepository projectrepo) {
+	public ProjectService(ProjectRepository projectrepo, OAuth2AuthenticationToken authenticationToken) {
 		this.projectrepo = projectrepo;
+		this.authenticationToken = authenticationToken;
 	}
 
-	public List<Project> getProjectDetails() {
+	public List<Project> getProjectbyCreatedBy(String createdby) {
 
-		List<Project> project = projectrepo.findAll();
-		if (project != null) {
-			return project;
-		} else {
-			throw new CustomObjectNotFoundException("Projectid Not found");
-		}
+		logger.debug("createdby is "+createdby);
+		List<Project> project = projectrepo.findProjectsByCreatedby(createdby);
+		return project;
+	
 
 	}
 
@@ -51,7 +54,7 @@ public class ProjectService {
 
 		Project project = projectrepo.findById(_id).get();
 		if (project != null) {
-			List<Project> projectlist = new ArrayList();
+			List<Project> projectlist = new ArrayList<Project>();
 			projectlist.add(project);
 			{
 				return projectlist;
@@ -64,36 +67,41 @@ public class ProjectService {
 
 	public List<Project> addProjectDetails() {
 
-		List projectlist = new ArrayList();
-		Project project = new Project().builder()._Id(projectrequestdto.getId()).title(projectrequestdto.getTitle())
-				//
-				.sequences(projectrequestdto.getSequences()).build();
+		List<Project> projectlist = new ArrayList<Project>();
+		
+		logger.debug(" email :: "+authenticationToken.getPrincipal().getAttributes());
+		logger.debug(" project description is "+projectrequestdto.getDescription());
+		logger.debug(" project title is "+projectrequestdto.getTitle());
+		Project project = Project.builder().title(projectrequestdto.getTitle()).description(projectrequestdto.getDescription()).createdby(authenticationToken.getPrincipal().getAttribute("email")).changeby(authenticationToken.getPrincipal().getAttribute("email")).build();
+		
+//		Project project = Project.builder().title(projectrequestdto.getTitle()).description(projectrequestdto.getDescription()).createdby("binayakchakraborty1@gmail.com").changeby("binayakchakraborty1@gmail.com").build();
+		
+//		Date currentdate = new java.util.Date();
+//		project.setCreateddate(currentdate);
+//		project.setCreateddate(currentdate);
 
 		// projectrequestdto.getSequences().stream().forEach(sequence->
 		// logger.debug(sequence.getActualmultimedia().getUrl()));
-
+		
 		projectlist.add(projectrepo.save(project));
-
-		return projectlist;
+        return projectlist;
 
 	}
 
 	public List<Project> updateAndSaveProjectDetails() throws Exception {
 
-		List<Project> projectlist = new ArrayList();
+		List<Project> projectlist = new ArrayList<Project>();
 		Optional<Project> projecttemp = projectrepo.findById(projectrequestdto.getId());
 		if (projecttemp.isPresent()) {
 			Project project = projecttemp.get();
 			project.setActualenddate(projectrequestdto.getActualenddate());
 			project.setActualstartdate(projectrequestdto.getActualstartdate());
-			project.setChangeby(projectrequestdto.getChangeby());
-			project.setChangedate(projectrequestdto.getChangedate());
-			project.setCreatedby(projectrequestdto.getCreatedby());
-			project.setCreateddate(projectrequestdto.getCreateddate());
+			project.setChangeby("binayakchakraborty1@gmail.com");
+			project.setChangedate(new java.util.Date());
 			project.setDescription(projectrequestdto.getDescription());
 			project.setPlannedenddate(projectrequestdto.getPlannedenddate());
 			project.setPlannedstartdate(projectrequestdto.getPlannedstartdate());
-			project.setSequences(projectrequestdto.getSequences());
+//			project.setSequences(projectrequestdto.getSequences());
 			project.setTitle(projectrequestdto.getTitle());
 			project.setUserid(projectrequestdto.getUserid());
 			projectlist.add(projectrepo.save(project));
@@ -104,11 +112,11 @@ public class ProjectService {
 
 	}
 
-	public List<Project> deleteAndSaveProject() throws Exception {
+	public List<Project> deleteAndSaveProject(String _id) throws Exception {
 
-		List<Project> projectlist = new ArrayList();
+		List<Project> projectlist = new ArrayList<Project>();
 
-		Optional<Project> projecttemp = projectrepo.findById(projectrequestdto.getId());
+		Optional<Project> projecttemp = projectrepo.findById(_id);
 		if (projecttemp.isPresent()) {
 			Project project = projecttemp.get();
 			projectrepo.delete(project);
@@ -152,7 +160,7 @@ public class ProjectService {
 				newseq.setShortdescription(sequencereqdto.getShortdescription());
 				newseq.setInstructions(sequencereqdto.getInstructions());
 				newseq.setSequencenum(maxseq+1);
-				newseq.setMultimediaurl("dummy url");
+				newseq.setMultimediaurl("test url");
 				sequencelist.add(newseq);
 				project.setSequences(sequencelist);
 				projectrepo.save(project);

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +64,11 @@ public class ThatStoryProjectDetailsController {
 	
 	@GetMapping("/profile")
 	public Info getProfile(OAuth2AuthenticationToken authenticationtoken, HttpServletRequest request, HttpServletResponse response) {
+		
+//		logger.debug("emailid is ::"+authenticationtoken.getPrincipal().getAttributes().get("email"));
 				
 		return new Info()
-                .setApplication("tutorial-social-logins")
+                .setApplication("that-story-login")
                 .setPrincipal(authenticationtoken.getPrincipal().getAttributes());
 
 	}
@@ -73,17 +76,17 @@ public class ThatStoryProjectDetailsController {
 	@GetMapping("/project")
 	@ResponseBody
 //	public ResponseEntity<ProjectResponseDTO> getProjectDetails(ProjectRequestDTO projectrequestdto) throws Exception {
-	public ResponseEntity<ProjectResponseDTO> getProjectDetails(@RequestParam (required=false) String _id) throws Exception {
+	public ResponseEntity<ProjectResponseDTO> getProjectDetails(OAuth2AuthenticationToken authenticationtoken, @RequestParam (required=false) String _id) throws Exception {
 		// ProjectResponseDTO projectresponsedto = new ProjectResponseDTO();
 		// projectresponsedto.setProjectrequestdto(projectrequestdto);
 
 		log.debug("_id is :: " + _id);
-		ProjectService projsvc = new ProjectService(projectrepo);
+		ProjectService projsvc = new ProjectService(projectrepo, authenticationtoken);
 		
 		if(_id ==null)
 		{
 		
-			return ResponseEntity.ok(new ProjectResponseDTO(projsvc.getProjectDetails()));
+			return ResponseEntity.ok(new ProjectResponseDTO(projsvc.getProjectbyCreatedBy(authenticationtoken.getPrincipal().getAttribute("email"))));
 		}
 		else
 		{
@@ -104,12 +107,13 @@ public class ThatStoryProjectDetailsController {
 			//@RequestPart("filename") String filename,
 			//@RequestPart("projectrequestdto") ProjectRequestDTO projectrequestdto,
 			//@RequestPart("file") MultipartFile file	
+			OAuth2AuthenticationToken authenticationtoken,
 			@RequestBody ProjectRequestDTO projectrequestdto
 			) throws Exception {
 
 		//log.debug("projectid is :: " + projectrequestdto.getId());
-
-		ProjectService projsvc = new ProjectService(projectrequestdto, projectrepo);
+		logger.debug("emailid is --> :: --> "+authenticationtoken.getPrincipal().getAttributes().get("email"));
+		ProjectService projsvc = new ProjectService(projectrequestdto, projectrepo, authenticationtoken);
 		List project = projsvc.addProjectDetails();
 
 		//MultimediaResponseDTO multimediaresponse = multimediasvc.uploadMultimedia(bucketname, filename, file);
@@ -126,12 +130,12 @@ public class ThatStoryProjectDetailsController {
 
 	@PutMapping("/project")
 	@ResponseBody
-	public ResponseEntity<ProjectResponseDTO> putProjectDetails(@RequestBody ProjectRequestDTO projectrequestdto)
+	public ResponseEntity<ProjectResponseDTO> putProjectDetails(OAuth2AuthenticationToken authenticationtoken , @RequestBody ProjectRequestDTO projectrequestdto)
 			throws Exception {
 
 //		log.debug("projectid is :: " + projectrequestdto.getId());
 
-		ProjectService projsvc = new ProjectService(projectrequestdto, projectrepo);
+		ProjectService projsvc = new ProjectService(projectrequestdto, projectrepo, authenticationtoken);
 		List project = projsvc.updateAndSaveProjectDetails();
 
 		if (project == null) {
@@ -139,18 +143,19 @@ public class ThatStoryProjectDetailsController {
 		} else {
 			return ResponseEntity.ok().body(new ProjectResponseDTO(project));
 		}
-
 	}
 
 	@DeleteMapping("/project")
 	@ResponseBody
-	public ResponseEntity<ProjectResponseDTO> deleteProject(@RequestBody ProjectRequestDTO projectrequestdto)
+	public ResponseEntity<ProjectResponseDTO> deleteProject(OAuth2AuthenticationToken authenticationtoken ,@RequestParam String _id)
 			throws Exception {
+		
+		
 
-		log.debug("projectid is :: " + projectrequestdto.getId());
+		log.debug("projectid is :: " + _id);
 
-		ProjectService projsvc = new ProjectService(projectrequestdto, projectrepo);
-		List project = projsvc.deleteAndSaveProject();
+		ProjectService projsvc = new ProjectService(projectrepo, authenticationtoken);
+		List project = projsvc.deleteAndSaveProject(_id);
 
 		if (project == null) {
 			return ResponseEntity.ok().body(new ProjectResponseDTO(project));
@@ -171,33 +176,33 @@ public class ThatStoryProjectDetailsController {
 	
 	
 	@GetMapping("/sequence")
-	public ResponseEntity<SequenceResponseDTO> addSequence(@RequestParam(required=true) String _id, @RequestParam(required=true) Integer sequencenum) throws Exception
+	public ResponseEntity<SequenceResponseDTO> addSequence(OAuth2AuthenticationToken authenticationToken, @RequestParam(required=true) String _id, @RequestParam(required=true) Integer sequencenum) throws Exception
 	{
-		ProjectService projectsvc = new ProjectService(projectrepo);
+		ProjectService projectsvc = new ProjectService(projectrepo, authenticationToken);
 		Sequence newseq = projectsvc.getSequenceDetails(_id,sequencenum);
 		return ResponseEntity.ok(new SequenceResponseDTO(newseq));
 	}
 	
 	@PostMapping("/sequence")
-	public ResponseEntity<SequenceResponseDTO> addSequence(@RequestBody SequenceRequestDTO seqrequestdto) throws Exception
+	public ResponseEntity<SequenceResponseDTO> addSequence(OAuth2AuthenticationToken authenticationToken, @Valid @RequestBody SequenceRequestDTO seqrequestdto) throws Exception
 	{
-		ProjectService projectsvc = new ProjectService(projectrepo);
+		ProjectService projectsvc = new ProjectService(projectrepo, authenticationToken);
 		Sequence newseq = projectsvc.addSequenceDetails(seqrequestdto);
 		return ResponseEntity.ok(new SequenceResponseDTO(newseq));
 	}
 	
 	@PutMapping("/sequence")
-	public ResponseEntity<SequenceResponseDTO> updateSequence(@RequestBody SequenceRequestDTO seqrequestdto) throws Exception
+	public ResponseEntity<SequenceResponseDTO> updateSequence(OAuth2AuthenticationToken authenticationToken, @RequestBody SequenceRequestDTO seqrequestdto) throws Exception
 	{
-		ProjectService projectsvc = new ProjectService(projectrepo);
+		ProjectService projectsvc = new ProjectService(projectrepo, authenticationToken);
 		Sequence newseq = projectsvc.updateSequenceDetails(seqrequestdto);
 		return ResponseEntity.ok(new SequenceResponseDTO(newseq));
 	}
 	
 	@DeleteMapping("/sequence")
-	public ResponseEntity<ProjectResponseDTO> deleteSequence(@RequestParam String _id, @RequestParam Integer sequencenum) throws Exception
+	public ResponseEntity<ProjectResponseDTO> deleteSequence(OAuth2AuthenticationToken authenticationToken ,@RequestParam String _id, @RequestParam Integer sequencenum) throws Exception
 	{
-		ProjectService projectsvc = new ProjectService(projectrepo);
+		ProjectService projectsvc = new ProjectService(projectrepo, authenticationToken);
 		List<Project> project = projectsvc.deleteSequenceDetails(_id, sequencenum);
 		return ResponseEntity.ok(new ProjectResponseDTO(project));
 	}
